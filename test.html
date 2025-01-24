@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>test started</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .question-container {
+            margin-top: 20px;
+        }
+        .timer {
+            font-size: 24px;
+            color: red;
+        }
+        .question-list {
+            margin-top: 20px;
+        }
+        .question-list button {
+            margin: 5px;
+        }
+        .selected {
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card text-center">
+        <div class="card-header">
+            <h1 class="text-center">TESTING AGENCY</h1>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-8 card">
+                    <div class="question-container " id="question-container">
+                        <div id="question"></div>
+                        <div id="options" class="mt-3"></div>
+                        <button class="btn btn-primary mt-3" id="next-button" style="display: none;">Next Question</button>
+                        <button class="btn btn-success mt-3" id="submit-button" style="display: none;">Submit Test</button>
+                    </div>
+                    
+
+                </div>
+                <div class="col-4">
+
+                    
+                      
+                            <div class="alert alert-danger" role="alert">
+                                <div class="timer" id="timer">Time Left: 20:00</div>
+                              </div>
+                            
+                        
+                              
+                       
+                    
+                            <div class="card ">
+                                <h5 >Questions</h5>
+                                <div class="question-list" id="question-list"></div>
+                            </div>
+    
+                        </div>
+                        
+                        
+                </div>
+              </div>
+        </div>
+        <div class="card-footer text-body-secondary">
+          2 days ago
+        </div>
+      </div>
+
+
+
+
+
+
+
+
+
+    
+   
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script>
+    const questions = [
+        { question: "What is the unit of force?", options: ["Newton", "Joule", "Pascal", "Watt"], answer: 0 },
+        { question: "What is the acceleration due to gravity on Earth?", options: ["9.8 m/s²", "10 m/s²", "9.81 m/s²", "8.9 m/s²"], answer: 2 },
+        { question: "What is the speed of light?", options: ["3 x 10^8 m/s", "3 x 10^6 m/s", "3 x 10^7 m/s", "3 x 10^9 m/s"], answer: 0 },
+        { question: "What is the formula for kinetic energy?", options: ["1/2 mv²", "mv", "mgh", "1/2 mgh"], answer: 0 },
+        { question: "What is the principle of conservation of energy?", options: ["Energy cannot be created or destroyed", "Energy can be created", "Energy can be destroyed", "None of the above"], answer: 0 },
+        // Add more questions as needed
+    ];
+
+    let currentQuestionIndex = 0;
+    let timer;
+    let totalTime = 20 * 60; // 20 minutes in seconds
+    let selectedAnswers = new Array(questions.length).fill(null);
+
+    function startTimer() {
+        timer = setInterval(() => {
+            totalTime--;
+            const minutes = Math.floor(totalTime / 60);
+            const seconds = totalTime % 60;
+            document.getElementById('timer').innerText = `Time Left: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            if (totalTime <= 0) {
+                clearInterval(timer);
+                alert("Time's up!");
+                submitTest();
+            }
+        }, 1000);
+    }
+
+    function loadQuestion() {
+        const currentQuestion = questions[currentQuestionIndex];
+        document.getElementById('question').innerText = currentQuestion.question;
+        const optionsContainer = document.getElementById('options');
+        optionsContainer.innerHTML = '';
+        currentQuestion.options.forEach((option, index) => {
+            const button = document.createElement('button');
+            button.innerText = option;
+            button.className = 'btn btn-outline-primary m-1';
+            button.onclick = () => selectAnswer(index);
+            optionsContainer.appendChild(button);
+        });
+        updateQuestionList();
+    }
+
+    function selectAnswer(index) {
+        selectedAnswers[currentQuestionIndex] = index;
+        updateQuestionList();
+        document.getElementById('next-button').style.display = 'block';
+    }
+
+    function updateQuestionList() {
+        const questionList = document.getElementById('question-list');
+        questionList.innerHTML = '';
+        questions.forEach((_, index) => {
+            const button = document.createElement('button');
+            button.innerText = index + 1;
+            button.className = 'btn btn-secondary' + (selectedAnswers[index] !== null ? 'selected' : '');
+            button.onclick = () => {
+                currentQuestionIndex = index;
+                loadQuestion();
+                document.getElementById('next-button').style.display = 'none';
+            };
+            questionList.appendChild(button);
+        });
+    }
+
+    document.getElementById('next-button').onclick = () => {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < questions.length) {
+            loadQuestion();
+            document.getElementById('next-button').style.display = 'none';
+        } else {
+            clearInterval(timer);
+            document.getElementById('submit-button').style.display = 'block';
+        }
+    };
+
+    document.getElementById('submit-button').onclick = () => {
+        submitTest();
+    };
+
+    function submitTest() {
+        clearInterval(timer);
+        let score = 0;
+        selectedAnswers.forEach((answer, index) => {
+            if (answer === questions[index].answer) {
+                score++;
+            }
+        });
+        alert(`Test submitted! Your score is ${score} out of ${questions.length}.`);
+        // Optionally, redirect to a results page or show results here
+    }
+
+    window.onload = () => {
+        startTimer();
+        loadQuestion();
+    };
+</script>
+</body>
+</html>
